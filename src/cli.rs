@@ -6,14 +6,14 @@ pub struct Args {
     #[arg(help = "Username")]
     pub username: String,
 
-    #[arg(long, help = "Scrape movie reviews")]
-    pub movie: Option<bool>,
+    #[arg(long, conflicts_with_all = ["drama", "anime"], help = "Scrape movie reviews")]
+    pub movie: bool,
 
-    #[arg(long, help = "Scrape drama reviews")]
-    pub drama: Option<bool>,
+    #[arg(long, conflicts_with = "anime", help = "Scrape drama reviews")]
+    pub drama: bool,
 
     #[arg(long, help = "Scrape anime reviews")]
-    pub anime: Option<bool>,
+    pub anime: bool,
 
     #[arg(short, long, help = "Output format (json, csv)")]
     pub format: Option<String>,
