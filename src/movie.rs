@@ -39,7 +39,6 @@ impl Scraper for MovieScraper {
                 is_first_page = false;
             }
 
-            // ...
             let reviews_in_page = Html::parse_document(&res.text()?)
                 .select(
                     // div element of class "c-content-card" within a div element of class "p-contents-list"
@@ -176,7 +175,7 @@ impl Scraper for MovieScraper {
 
             reviews.extend(reviews_in_page);
 
-            // Get the next page of reviews
+            // Get the next page of reviews.
             page_index += 1;
             page = format!(
                 "https://filmarks.com/users/{}?page={}",
