@@ -64,7 +64,7 @@ pub trait Scraper {
 
 fn get_scraper(args: &Args) -> impl Scraper {
     match (args.movie, args.drama, args.anime) {
-        (_, false, false) => movie::MovieScraper::new(&args.username),
+        (_, false, false) => movie::MovieScraper::new(&args.user_id),
         (false, true, false) => todo!(),
         (false, false, true) => todo!(),
         _ => unreachable!(),

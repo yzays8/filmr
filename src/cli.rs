@@ -3,8 +3,8 @@ use clap::Parser;
 #[derive(Debug, Parser)]
 #[command(version, about, long_about = None)]
 pub struct Args {
-    #[arg(help = "Username")]
-    pub username: String,
+    #[arg(help = "User ID to scrape reviews from")]
+    pub user_id: String,
 
     #[arg(short, long, help = "Output file")]
     pub output: Option<String>,

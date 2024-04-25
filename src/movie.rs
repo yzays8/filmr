@@ -11,9 +11,9 @@ pub struct MovieScraper {
 }
 
 impl MovieScraper {
-    pub fn new(username: &str) -> Self {
+    pub fn new(user_id: &str) -> Self {
         Self {
-            username: username.to_string(),
+            username: user_id.to_string(),
         }
     }
 }
