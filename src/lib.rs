@@ -1,6 +1,7 @@
+mod anime;
 mod cli;
+mod drama;
 mod movie;
 mod scraper;
-mod drama;
 
 pub use scraper::run;

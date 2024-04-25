@@ -7,7 +7,7 @@ use clap::Parser;
 use serde::{Deserialize, Serialize};
 
 use crate::cli::Args;
-use crate::{movie, drama};
+use crate::{anime, drama, movie};
 
 #[derive(Debug)]
 pub enum FileType {
@@ -66,7 +66,7 @@ fn get_scraper(args: &Args) -> Box<dyn Scraper> {
     match (args.movie, args.drama, args.anime) {
         (_, false, false) => Box::new(movie::MovieScraper::new(&args.user_id)),
         (false, true, false) => Box::new(drama::DramaScraper::new(&args.user_id)),
-        (false, false, true) => todo!(),
+        (false, false, true) => Box::new(anime::AnimeScraper::new(&args.user_id)),
         _ => unreachable!(),
     }
 }
