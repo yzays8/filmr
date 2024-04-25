@@ -8,13 +8,13 @@ use crate::scraper::{Scraper, UserReview, UserReviews};
 
 #[derive(Debug)]
 pub struct DramaScraper {
-    username: String,
+    user_id: String,
 }
 
 impl DramaScraper {
     pub fn new(user_id: &str) -> Self {
         Self {
-            username: user_id.to_string(),
+            user_id: user_id.to_string(),
         }
     }
 }
@@ -22,7 +22,7 @@ impl DramaScraper {
 impl Scraper for DramaScraper {
     fn scrape(&self) -> Result<UserReviews> {
         let mut reviews: Vec<UserReview> = Vec::new();
-        let mut page = format!("https://filmarks.com/users/{}/marks/dramas", self.username);
+        let mut page = format!("https://filmarks.com/users/{}/marks/dramas", self.user_id);
         let mut is_first_page = true;
         let mut page_index = 1;
 
@@ -191,7 +191,7 @@ impl Scraper for DramaScraper {
             page_index += 1;
             page = format!(
                 "https://filmarks.com/users/{}/marks/dramas?page={}",
-                self.username, page_index
+                self.user_id, page_index
             );
         }
 
