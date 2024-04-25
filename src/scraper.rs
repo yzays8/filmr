@@ -11,8 +11,9 @@ use crate::movie;
 
 #[derive(Debug)]
 pub enum FileType {
-    Json,
     Csv,
+    Json,
+    Txt,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -31,16 +32,26 @@ pub struct UserReviews {
 impl UserReviews {
     fn export(&self, format: FileType) -> Result<()> {
         match format {
-            FileType::Json => {
-                let json = serde_json::to_string_pretty(&self)?;
-                File::create(Path::new("reviews.json"))?.write_all(json.as_bytes())?;
-            }
             FileType::Csv => {
                 let mut writer = csv::Writer::from_path(Path::new("reviews.csv"))?;
                 for review in &self.reviews {
                     writer.serialize(review)?;
                 }
                 writer.flush()?;
+            }
+            FileType::Json => {
+                let json = serde_json::to_string_pretty(&self)?;
+                File::create(Path::new("reviews.json"))?.write_all(json.as_bytes())?;
+            }
+            FileType::Txt => {
+                let mut file = File::create(Path::new("reviews.txt"))?;
+                for review in &self.reviews {
+                    writeln!(
+                        file,
+                        "Title: {}\nYear: {}\nScore: {}\nReview:\n{}\n\n",
+                        review.title, review.year, review.score, review.review
+                    )?;
+                }
             }
         }
         Ok(())
@@ -64,11 +75,12 @@ pub fn run() -> Result<()> {
     let args = Args::parse();
     let file_type = match &args.format {
         Some(format) => match format.to_lowercase().as_str() {
-            "json" => FileType::Json,
             "csv" => FileType::Csv,
+            "json" => FileType::Json,
+            "txt" => FileType::Txt,
             _ => bail!("Invalid format"),
         },
-        None => FileType::Json,
+        None => FileType::Txt,
     };
     get_scraper(&args).scrape()?.export(file_type)?;
     Ok(())

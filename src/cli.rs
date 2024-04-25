@@ -15,6 +15,6 @@ pub struct Args {
     #[arg(long, help = "Scrape anime reviews")]
     pub anime: bool,
 
-    #[arg(short, long, help = "Output format (json, csv). Default: json")]
+    #[arg(short, long, help = "Output format (csv, json, txt). Default: txt")]
     pub format: Option<String>,
 }
