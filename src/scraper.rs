@@ -30,10 +30,10 @@ pub struct UserReviews {
 }
 
 impl UserReviews {
-    fn export(&self, format: FileType) -> Result<()> {
+    fn export(&self, format: FileType, path: &Path) -> Result<()> {
         match format {
             FileType::Csv => {
-                let mut writer = csv::Writer::from_path(Path::new("reviews.csv"))?;
+                let mut writer = csv::Writer::from_path(path)?;
                 for review in &self.reviews {
                     writer.serialize(review)?;
                 }
@@ -41,10 +41,10 @@ impl UserReviews {
             }
             FileType::Json => {
                 let json = serde_json::to_string_pretty(&self)?;
-                File::create(Path::new("reviews.json"))?.write_all(json.as_bytes())?;
+                File::create(path)?.write_all(json.as_bytes())?;
             }
             FileType::Txt => {
-                let mut file = File::create(Path::new("reviews.txt"))?;
+                let mut file = File::create(path)?;
                 for review in &self.reviews {
                     writeln!(
                         file,
@@ -82,6 +82,15 @@ pub fn run() -> Result<()> {
         },
         None => FileType::Txt,
     };
-    get_scraper(&args).scrape()?.export(file_type)?;
+    let file_path = match &args.output {
+        Some(path) => Path::new(path),
+        None => match file_type {
+            FileType::Csv => Path::new("reviews.csv"),
+            FileType::Json => Path::new("reviews.json"),
+            FileType::Txt => Path::new("reviews.txt"),
+        },
+    };
+    file_path.try_exists()?;
+    get_scraper(&args).scrape()?.export(file_type, file_path)?;
     Ok(())
 }

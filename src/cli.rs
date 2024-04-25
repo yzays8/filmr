@@ -6,6 +6,9 @@ pub struct Args {
     #[arg(help = "Username")]
     pub username: String,
 
+    #[arg(short, long, help = "Output file")]
+    pub output: Option<String>,
+
     #[arg(long, conflicts_with_all = ["drama", "anime"], help = "Scrape movie reviews")]
     pub movie: bool,
 
