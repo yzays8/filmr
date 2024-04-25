@@ -1,4 +1,5 @@
 use anyhow::{anyhow, bail, Ok, Result};
+use indicatif::ProgressBar;
 use regex::Regex;
 use reqwest::{blocking, StatusCode};
 use scraper::{Html, Selector};
@@ -26,7 +27,6 @@ impl Scraper for MovieScraper {
         let mut page_index = 1;
 
         loop {
-            println!("Fetching page {}", page);
             let res = blocking::get(&page)?;
             if res.status() == StatusCode::NOT_FOUND {
                 if is_first_page {
@@ -38,14 +38,25 @@ impl Scraper for MovieScraper {
             } else {
                 is_first_page = false;
             }
+            println!("Scraping reviews from {}", page);
 
-            let reviews_in_page = Html::parse_document(&res.text()?)
-                .select(
-                    // div element of class "c-content-card" within a div element of class "p-contents-list"
-                    &Selector::parse("div.p-contents-list div.c-content-card")
-                        .map_err(|e| anyhow!("Failed to parse selector {}", e))?,
-                )
+            let html = Html::parse_document(&res.text()?);
+            // div element of class "c-content-card" within a div element of class "p-contents-list"
+            let s = Selector::parse("div.p-contents-list div.c-content-card")
+                .map_err(|e| anyhow!("Failed to parse selector {}", e))?;
+            let reviews_in_page_iter = html.select(&s);
+
+            let pb = ProgressBar::new(reviews_in_page_iter.clone().count() as u64);
+            pb.set_style(
+                indicatif::ProgressStyle::with_template(
+                    "[{elapsed_precise}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}",
+                )?
+                .progress_chars("##-"),
+            );
+
+            let reviews_in_page = reviews_in_page_iter
                 .map(|elem| -> Result<UserReview> {
+                    pb.inc(1);
                     if elem
                         .select(
                             &Selector::parse("span.c-content-card__readmore-review")
@@ -172,6 +183,7 @@ impl Scraper for MovieScraper {
                     }
                 })
                 .collect::<Result<Vec<UserReview>>>()?;
+            pb.finish();
 
             reviews.extend(reviews_in_page);
 
