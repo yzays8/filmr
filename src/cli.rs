@@ -9,13 +9,13 @@ pub struct Args {
     #[arg(short, long, help = "Output file")]
     pub output: Option<String>,
 
-    #[arg(long, conflicts_with_all = ["drama", "anime"], help = "Scrape movie reviews (default)")]
+    #[arg(long, conflicts_with_all = ["drama", "anime"], help = "Retrieve movie reviews (default)")]
     pub movie: bool,
 
-    #[arg(long, conflicts_with = "anime", help = "Scrape drama reviews")]
+    #[arg(long, conflicts_with = "anime", help = "Retrieve drama reviews")]
     pub drama: bool,
 
-    #[arg(long, help = "Scrape anime reviews")]
+    #[arg(long, help = "Retrieve anime reviews")]
     pub anime: bool,
 
     #[arg(short, long, help = "Output format (csv, json, txt). Default: txt")]
