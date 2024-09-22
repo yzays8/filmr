@@ -3,11 +3,18 @@ use std::io::Write;
 use std::path::Path;
 
 use anyhow::{bail, Ok, Result};
-use clap::Parser;
 use serde::{Deserialize, Serialize};
 
-use crate::cli::Args;
 use crate::{anime, drama, movie};
+
+pub struct Config {
+    pub user_id: String,
+    pub output: Option<String>,
+    pub is_movie: bool,
+    pub is_drama: bool,
+    pub is_anime: bool,
+    pub format: Option<String>,
+}
 
 #[derive(Debug)]
 pub enum FileType {
@@ -62,18 +69,17 @@ pub trait Scraper {
     fn scrape(&self) -> Result<UserReviews>;
 }
 
-fn get_scraper(args: &Args) -> Box<dyn Scraper> {
-    match (args.movie, args.drama, args.anime) {
-        (_, false, false) => Box::new(movie::MovieScraper::new(&args.user_id)),
-        (false, true, false) => Box::new(drama::DramaScraper::new(&args.user_id)),
-        (false, false, true) => Box::new(anime::AnimeScraper::new(&args.user_id)),
+fn get_scraper(config: &Config) -> Box<dyn Scraper> {
+    match (config.is_movie, config.is_drama, config.is_anime) {
+        (_, false, false) => Box::new(movie::MovieScraper::new(&config.user_id)),
+        (false, true, false) => Box::new(drama::DramaScraper::new(&config.user_id)),
+        (false, false, true) => Box::new(anime::AnimeScraper::new(&config.user_id)),
         _ => unreachable!(),
     }
 }
 
-pub fn run() -> Result<()> {
-    let args = Args::parse();
-    let file_type = match &args.format {
+pub fn run(config: &Config) -> Result<()> {
+    let file_type = match &config.format {
         Some(format) => match format.to_lowercase().as_str() {
             "csv" => FileType::Csv,
             "json" => FileType::Json,
@@ -82,7 +88,7 @@ pub fn run() -> Result<()> {
         },
         None => FileType::Txt,
     };
-    let file_path = match &args.output {
+    let file_path = match &config.output {
         Some(path) => Path::new(path),
         None => match file_type {
             FileType::Csv => Path::new("reviews.csv"),
@@ -91,6 +97,6 @@ pub fn run() -> Result<()> {
         },
     };
     file_path.try_exists()?;
-    get_scraper(&args).scrape()?.export(file_type, file_path)?;
+    get_scraper(config).scrape()?.export(file_type, file_path)?;
     Ok(())
 }
