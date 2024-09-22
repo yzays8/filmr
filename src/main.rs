@@ -3,7 +3,7 @@ mod cli;
 use clap::Parser as _;
 use cli::Args;
 
-use filmr::Config;
+use filmr::{run, Config};
 
 fn main() {
     let args = Args::parse();
@@ -16,7 +16,7 @@ fn main() {
         format: args.format,
     };
 
-    if let Err(e) = filmr::run(&config) {
+    if let Err(e) = run(&config) {
         eprintln!("Error: {}", e);
         std::process::exit(1);
     }
