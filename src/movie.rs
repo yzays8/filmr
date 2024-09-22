@@ -1,4 +1,5 @@
 use anyhow::{anyhow, bail, Ok, Result};
+use colored::Colorize;
 use indicatif::ProgressBar;
 use regex::Regex;
 use reqwest::{blocking, StatusCode};
@@ -38,7 +39,7 @@ impl Scraper for MovieScraper {
             } else {
                 is_first_page = false;
             }
-            println!("Scraping reviews from {}", page);
+            println!("Fetching reviews from {}...", page.bright_cyan());
 
             let html = Html::parse_document(&res.text()?);
             // div element of class "c-content-card" within a div element of class "p-contents-list"
@@ -183,7 +184,8 @@ impl Scraper for MovieScraper {
                     }
                 })
                 .collect::<Result<Vec<UserReview>>>()?;
-            pb.finish();
+            pb.finish_and_clear();
+            println!("Done! {} reviews found.", reviews_in_page.len());
 
             reviews.extend(reviews_in_page);
 
