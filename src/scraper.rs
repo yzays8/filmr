@@ -17,7 +17,7 @@ pub struct Config {
 }
 
 #[derive(Debug)]
-pub enum FileType {
+enum FileType {
     Csv,
     Json,
     Txt,
