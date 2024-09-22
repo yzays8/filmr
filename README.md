@@ -1,6 +1,6 @@
 # filmr
 
-filmr is a scraping tool for [Filmarks](https://filmarks.com/). Enter a user ID and the user's previous reviews can be output in json/csv/txt format.
+`filmr` is a scraping tool to get the reviews of a specific user on [Filmarks](https://filmarks.com/). It supports `csv`, `json`, and `txt` as output formats.
 
 ## Usage
 
@@ -13,9 +13,9 @@ Arguments:
 
 Options:
   -o, --output <OUTPUT>  Output file
-      --movie            Scrape movie reviews (default)
-      --drama            Scrape drama reviews
-      --anime            Scrape anime reviews
+      --movie            Retrieve movie reviews (default)
+      --drama            Retrieve drama reviews
+      --anime            Retrieve anime reviews
   -f, --format <FORMAT>  Output format (csv, json, txt). Default: txt
   -h, --help             Print help
   -V, --version          Print version
