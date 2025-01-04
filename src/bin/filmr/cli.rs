@@ -20,7 +20,7 @@ pub struct Args {
     #[arg(long, help = "Retrieve anime reviews")]
     pub anime: bool,
 
-    #[arg(short, long, default_value_t = FileType::Txt, value_name = "FORMAT", help = "Output format")]
+    #[arg(short, long, default_value_t = FileType::Csv, value_name = "FORMAT", help = "Output format")]
     pub format: FileType,
 }
 
