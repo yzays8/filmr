@@ -11,11 +11,11 @@ pub struct Args {
     #[arg(short, long, help = "Output file")]
     pub output: Option<String>,
 
-    #[arg(long, conflicts_with_all = ["drama", "anime"], help = "Retrieve movie reviews (default)")]
+    #[arg(long, conflicts_with_all = ["tvs", "anime"], help = "Retrieve movie reviews (default)")]
     pub movie: bool,
 
-    #[arg(long, conflicts_with = "anime", help = "Retrieve drama reviews")]
-    pub drama: bool,
+    #[arg(long, conflicts_with = "anime", help = "Retrieve TV series reviews")]
+    pub tvs: bool,
 
     #[arg(long, help = "Retrieve anime reviews")]
     pub anime: bool,

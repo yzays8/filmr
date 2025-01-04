@@ -16,7 +16,7 @@ fn main() {
         user_id: args.user_id,
         output: args.output,
         is_movie: args.movie,
-        is_drama: args.drama,
+        is_tv_series: args.tvs,
         is_anime: args.anime,
         format,
     };

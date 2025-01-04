@@ -5,14 +5,14 @@ use std::path::Path;
 use anyhow::{Ok, Result};
 use serde::{Deserialize, Serialize};
 
-use crate::{anime, drama, movie};
+use crate::{anime, movie, tv_series};
 
 #[derive(Debug)]
 pub struct Config {
     pub user_id: String,
     pub output: Option<String>,
     pub is_movie: bool,
-    pub is_drama: bool,
+    pub is_tv_series: bool,
     pub is_anime: bool,
     pub format: FileType,
 }
@@ -71,9 +71,9 @@ pub trait Scraper {
 }
 
 fn get_scraper(config: &Config) -> Box<dyn Scraper> {
-    match (config.is_movie, config.is_drama, config.is_anime) {
+    match (config.is_movie, config.is_tv_series, config.is_anime) {
         (_, false, false) => Box::new(movie::MovieScraper::new(&config.user_id)),
-        (false, true, false) => Box::new(drama::DramaScraper::new(&config.user_id)),
+        (false, true, false) => Box::new(tv_series::TvSeriesScraper::new(&config.user_id)),
         (false, false, true) => Box::new(anime::AnimeScraper::new(&config.user_id)),
         _ => unreachable!(),
     }

@@ -8,11 +8,11 @@ use scraper::{Html, Selector};
 use crate::scraper::{Scraper, UserReview, UserReviews};
 
 #[derive(Debug)]
-pub struct DramaScraper {
+pub struct TvSeriesScraper {
     user_id: String,
 }
 
-impl DramaScraper {
+impl TvSeriesScraper {
     pub fn new(user_id: &str) -> Self {
         Self {
             user_id: user_id.to_string(),
@@ -20,7 +20,7 @@ impl DramaScraper {
     }
 }
 
-impl Scraper for DramaScraper {
+impl Scraper for TvSeriesScraper {
     fn scrape(&self) -> Result<UserReviews> {
         let mut reviews: Vec<UserReview> = Vec::new();
         let mut page = format!("https://filmarks.com/users/{}/marks/dramas", self.user_id);
