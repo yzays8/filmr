@@ -2,22 +2,23 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-use anyhow::{bail, Ok, Result};
+use anyhow::{Ok, Result};
 use serde::{Deserialize, Serialize};
 
 use crate::{anime, drama, movie};
 
+#[derive(Debug)]
 pub struct Config {
     pub user_id: String,
     pub output: Option<String>,
     pub is_movie: bool,
     pub is_drama: bool,
     pub is_anime: bool,
-    pub format: Option<String>,
+    pub format: FileType,
 }
 
-#[derive(Debug)]
-enum FileType {
+#[derive(Debug, Clone, Copy)]
+pub enum FileType {
     Csv,
     Json,
     Txt,
@@ -79,24 +80,17 @@ fn get_scraper(config: &Config) -> Box<dyn Scraper> {
 }
 
 pub fn run(config: &Config) -> Result<()> {
-    let file_type = match &config.format {
-        Some(format) => match format.to_lowercase().as_str() {
-            "csv" => FileType::Csv,
-            "json" => FileType::Json,
-            "txt" => FileType::Txt,
-            _ => bail!("Invalid format"),
-        },
-        None => FileType::Txt,
-    };
     let file_path = match &config.output {
         Some(path) => Path::new(path),
-        None => match file_type {
+        None => match config.format {
             FileType::Csv => Path::new("reviews.csv"),
             FileType::Json => Path::new("reviews.json"),
             FileType::Txt => Path::new("reviews.txt"),
         },
     };
     file_path.try_exists()?;
-    get_scraper(config).scrape()?.export(file_type, file_path)?;
+    get_scraper(config)
+        .scrape()?
+        .export(config.format, file_path)?;
     Ok(())
 }

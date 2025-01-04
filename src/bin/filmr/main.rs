@@ -1,19 +1,24 @@
 mod cli;
 
 use clap::Parser as _;
-use cli::Args;
+use cli::{Args, FileType};
 
-use filmr::{run, Config};
+use filmr::{self, run, Config};
 
 fn main() {
     let args = Args::parse();
+    let format = match args.format {
+        FileType::Csv => filmr::FileType::Csv,
+        FileType::Json => filmr::FileType::Json,
+        FileType::Txt => filmr::FileType::Txt,
+    };
     let config = Config {
         user_id: args.user_id,
         output: args.output,
         is_movie: args.movie,
         is_drama: args.drama,
         is_anime: args.anime,
-        format: args.format,
+        format,
     };
 
     if let Err(e) = run(&config) {

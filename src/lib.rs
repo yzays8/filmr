@@ -3,4 +3,4 @@ mod drama;
 mod movie;
 mod scraper;
 
-pub use scraper::{run, Config};
+pub use scraper::{run, Config, FileType};
