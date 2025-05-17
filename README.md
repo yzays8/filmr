@@ -13,7 +13,7 @@ Arguments:
 
 Options:
   -o, --output <OUTPUT>  Output file
-      --movie            Retrieve movie reviews (default)
+      --film             Retrieve film reviews (default)
       --tvs              Retrieve TV series reviews
       --anime            Retrieve anime reviews
   -f, --format <FORMAT>  Output format [default: csv] [possible values: csv, json, txt]
