@@ -6,4 +6,4 @@ mod scraper;
 mod tv_series;
 
 pub use app::App;
-pub use scraper::{Config, FileType, UserReview, UserReviews};
+pub use scraper::{Config, FileType};
