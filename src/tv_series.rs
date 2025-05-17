@@ -159,10 +159,10 @@ impl Scraper for TvSeriesScraper {
                             .parse::<f32>()
                             .unwrap_or(0.0);
                         let review =
-                            Regex::new(r#"<div class="p-mark__review">(.+)</div>"#)?
+                            Regex::new(r#"<div class="p-mark-review">(.+)</div>"#)?
                                 .captures(
                                     &document
-                                        .select(&Selector::parse("div.p-mark__review").map_err(
+                                        .select(&Selector::parse("div.p-mark-review").map_err(
                                             |e| anyhow!("Failed to parse selector {}", e),
                                         )?)
                                         .next()
