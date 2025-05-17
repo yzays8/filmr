@@ -1,8 +1,8 @@
-use anyhow::{anyhow, bail, Ok, Result};
+use anyhow::{Ok, Result, anyhow, bail};
 use colored::Colorize;
 use indicatif::ProgressBar;
 use regex::Regex;
-use reqwest::{blocking, StatusCode};
+use reqwest::{StatusCode, blocking};
 use scraper::{Html, Selector};
 
 use crate::scraper::{Scraper, UserReview, UserReviews};
@@ -26,6 +26,10 @@ impl Scraper for AnimeScraper {
         let mut page = format!("https://filmarks.com/users/{}/marks/animes", self.user_id);
         let mut is_first_page = true;
         let mut page_index = 1;
+        let regex_card = Regex::new(r"(.+)\((\d{4}).+\)")?;
+        let regex_short_rev =
+            Regex::new(r#"<p class="c-content-card__review"><span>(.*)</span></p>"#)?;
+        let regex_long_rev = Regex::new(r#"<div class="p-mark-review">(.+)</div>"#)?;
 
         loop {
             let res = blocking::get(&page)?;
@@ -76,9 +80,7 @@ impl Scraper for AnimeScraper {
                             .unwrap()
                             .text()
                             .collect::<String>();
-                        let captures = Regex::new(r"(.+)\((\d{4}).+\)")?
-                            .captures(&title_and_year)
-                            .unwrap();
+                        let captures = regex_card.captures(&title_and_year).unwrap();
                         let title = captures.get(1).unwrap().as_str().to_string();
                         let year = captures.get(2).unwrap().as_str().parse::<i32>().unwrap();
                         let score = elem
@@ -92,25 +94,24 @@ impl Scraper for AnimeScraper {
                             .collect::<String>()
                             .parse::<f32>()
                             .unwrap_or(0.0);
-                        let review = Regex::new(
-                            r#"<p class="c-content-card__review"><span>(.*)</span></p>"#,
-                        )?
-                        .captures(
-                            &elem
-                                .select(
-                                    &Selector::parse("p.c-content-card__review")
-                                        .map_err(|e| anyhow!("Failed to parse selector {}", e))?,
-                                )
-                                .next()
-                                .unwrap()
-                                .html(),
-                        )
-                        .unwrap()
-                        .get(1)
-                        .unwrap()
-                        .as_str()
-                        .to_string()
-                        .replace("<br>", "\n");
+                        let review = regex_short_rev
+                            .captures(
+                                &elem
+                                    .select(
+                                        &Selector::parse("p.c-content-card__review").map_err(
+                                            |e| anyhow!("Failed to parse selector {}", e),
+                                        )?,
+                                    )
+                                    .next()
+                                    .unwrap()
+                                    .html(),
+                            )
+                            .unwrap()
+                            .get(1)
+                            .unwrap()
+                            .as_str()
+                            .to_string()
+                            .replace("<br>", "\n");
                         Ok(UserReview {
                             title,
                             year,
@@ -141,10 +142,7 @@ impl Scraper for AnimeScraper {
                             .unwrap()
                             .text()
                             .collect::<String>();
-                        let captures = Regex::new(r"(.+)\((\d{4}).+\)")
-                            .unwrap()
-                            .captures(&title_and_year)
-                            .unwrap();
+                        let captures = regex_card.captures(&title_and_year).unwrap();
                         let title = captures.get(1).unwrap().as_str().to_string();
                         let year = captures.get(2).unwrap().as_str().parse::<i32>().unwrap();
                         let score = document
@@ -159,7 +157,7 @@ impl Scraper for AnimeScraper {
                             .parse::<f32>()
                             .unwrap_or(0.0);
                         let review =
-                            Regex::new(r#"<div class="p-mark-review">(.+)</div>"#)?
+                            regex_long_rev
                                 .captures(
                                     &document
                                         .select(&Selector::parse("div.p-mark-review").map_err(

@@ -1,9 +1,11 @@
+#![deny(unsafe_code)]
+
 mod cli;
 
 use clap::Parser as _;
 use cli::{Args, FileType};
 
-use filmr::{self, run, Config};
+use filmr::{self, App, Config};
 
 fn main() {
     let args = Args::parse();
@@ -15,13 +17,13 @@ fn main() {
     let config = Config {
         user_id: args.user_id,
         output: args.output,
-        is_movie: args.movie,
+        is_film: args.film,
         is_tv_series: args.tvs,
         is_anime: args.anime,
         format,
     };
 
-    if let Err(e) = run(&config) {
+    if let Err(e) = App::new(config).run() {
         eprintln!("Error: {}", e);
         std::process::exit(1);
     }

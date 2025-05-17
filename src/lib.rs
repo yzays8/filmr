@@ -1,6 +1,9 @@
+#[deny(unsafe_code)]
 mod anime;
-mod movie;
+mod app;
+mod film;
 mod scraper;
 mod tv_series;
 
-pub use scraper::{run, Config, FileType};
+pub use app::App;
+pub use scraper::{Config, FileType, UserReview, UserReviews};
