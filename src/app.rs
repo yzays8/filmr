@@ -2,12 +2,9 @@ use std::path::Path;
 
 use anyhow::Result;
 
-use crate::{
-    anime::AnimeScraper,
-    film::FilmScraper,
-    scraper::{Config, FileType, Scraper},
-    tv_series::TvSeriesScraper,
-};
+use crate::scraper::{Config, FileType, Scraper};
+
+const USER_BASE_URL: &str = "https://filmarks.com/users/";
 
 #[derive(Debug)]
 pub struct App {
@@ -19,15 +16,21 @@ impl App {
         App { config }
     }
 
-    pub fn get_scraper(&self) -> Box<dyn Scraper> {
+    pub fn get_scraper(&self) -> Scraper {
         match (
             self.config.is_film,
             self.config.is_tv_series,
             self.config.is_anime,
         ) {
-            (_, false, false) => Box::new(FilmScraper::new(&self.config.user_id)),
-            (false, true, false) => Box::new(TvSeriesScraper::new(&self.config.user_id)),
-            (false, false, true) => Box::new(AnimeScraper::new(&self.config.user_id)),
+            (_, false, false) => Scraper::new(&format!("{USER_BASE_URL}{}", self.config.user_id)),
+            (false, true, false) => Scraper::new(&format!(
+                "{USER_BASE_URL}{}/marks/dramas",
+                self.config.user_id
+            )),
+            (false, false, true) => Scraper::new(&format!(
+                "{USER_BASE_URL}{}/marks/animes",
+                self.config.user_id
+            )),
             _ => unreachable!(),
         }
     }
