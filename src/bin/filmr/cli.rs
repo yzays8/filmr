@@ -22,6 +22,9 @@ pub struct Args {
 
     #[arg(short, long, default_value_t = FileType::Csv, value_name = "FORMAT", help = "Output format")]
     pub format: FileType,
+
+    #[arg(short, long, default_value = "1s", value_parser = clap::value_parser!(humantime::Duration), help = "Delay between requests (e.g. '500ms', '2s')")]
+    pub rate: humantime::Duration,
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum)]

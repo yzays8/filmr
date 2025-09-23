@@ -7,7 +7,8 @@ use cli::{Args, FileType};
 
 use filmr::{self, App, Config};
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let args = Args::parse();
     let format = match args.format {
         FileType::Csv => filmr::FileType::Csv,
@@ -21,9 +22,10 @@ fn main() {
         is_tv_series: args.tvs,
         is_anime: args.anime,
         format,
+        rate: args.rate,
     };
 
-    if let Err(e) = App::new(config).run() {
+    if let Err(e) = App::new(config).run().await {
         eprintln!("Error: {}", e);
         std::process::exit(1);
     }
