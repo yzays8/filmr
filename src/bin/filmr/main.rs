@@ -4,12 +4,17 @@ mod cli;
 
 use clap::Parser as _;
 
-use cli::{Args, FileType};
+use cli::{Args, FileType, MediaType};
 use filmr::{self, App, Config};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
+    let media = match args.media {
+        MediaType::Film => filmr::MediaType::Film,
+        MediaType::Tvs => filmr::MediaType::Tvs,
+        MediaType::Anime => filmr::MediaType::Anime,
+    };
     let format = match args.format {
         FileType::Csv => filmr::FileType::Csv,
         FileType::Json => filmr::FileType::Json,
@@ -18,9 +23,7 @@ async fn main() -> anyhow::Result<()> {
     let config = Config {
         user_id: args.user_id,
         output: args.output,
-        is_film: args.film,
-        is_tv_series: args.tvs,
-        is_anime: args.anime,
+        media,
         format,
         rate: args.rate,
     };

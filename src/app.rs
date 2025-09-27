@@ -3,7 +3,7 @@ use std::path::Path;
 use crate::{
     client::RateLimitedClient,
     error::Result,
-    scraper::{Config, FileType, Scraper},
+    scraper::{Config, FileType, MediaType, Scraper},
 };
 
 // ref: https://filmarks.com/robots.txt
@@ -21,23 +21,18 @@ impl App {
 
     pub fn get_scraper(&self) -> Scraper {
         let client = RateLimitedClient::with_rate(self.config.rate.into());
-        match (
-            self.config.is_film,
-            self.config.is_tv_series,
-            self.config.is_anime,
-        ) {
-            (_, false, false) => {
+        match self.config.media {
+            MediaType::Film => {
                 Scraper::new(&format!("{USER_BASE_URL}{}", self.config.user_id), client)
             }
-            (false, true, false) => Scraper::new(
+            MediaType::Tvs => Scraper::new(
                 &format!("{USER_BASE_URL}{}/marks/dramas", self.config.user_id),
                 client,
             ),
-            (false, false, true) => Scraper::new(
+            MediaType::Anime => Scraper::new(
                 &format!("{USER_BASE_URL}{}/marks/animes", self.config.user_id),
                 client,
             ),
-            _ => unreachable!(),
         }
     }
 

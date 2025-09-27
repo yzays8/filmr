@@ -18,11 +18,16 @@ use crate::{
 pub struct Config {
     pub user_id: String,
     pub output: Option<String>,
-    pub is_film: bool,
-    pub is_tv_series: bool,
-    pub is_anime: bool,
+    pub media: MediaType,
     pub format: FileType,
     pub rate: Duration,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum MediaType {
+    Film,
+    Tvs,
+    Anime,
 }
 
 #[derive(Debug, Clone, Copy)]

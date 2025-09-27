@@ -11,20 +11,31 @@ pub struct Args {
     #[arg(short, long, help = "Output file")]
     pub output: Option<String>,
 
-    #[arg(long, conflicts_with_all = ["tvs", "anime"], help = "Retrieve film reviews (default)")]
-    pub film: bool,
-
-    #[arg(long, conflicts_with = "anime", help = "Retrieve TV series reviews")]
-    pub tvs: bool,
-
-    #[arg(long, help = "Retrieve anime reviews")]
-    pub anime: bool,
+    #[arg(short, long, default_value_t = MediaType::Film, help = "Type of media to retrieve")]
+    pub media: MediaType,
 
     #[arg(short, long, default_value_t = FileType::Csv, value_name = "FORMAT", help = "Output format")]
     pub format: FileType,
 
     #[arg(short, long, default_value = "1s", value_parser = clap::value_parser!(humantime::Duration), help = "Delay between requests (e.g. '500ms', '2s')")]
     pub rate: humantime::Duration,
+}
+
+#[derive(Debug, Clone, Copy, ValueEnum)]
+pub enum MediaType {
+    Film,
+    Tvs,
+    Anime,
+}
+
+impl fmt::Display for MediaType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            MediaType::Film => write!(f, "film"),
+            MediaType::Tvs => write!(f, "tvs"),
+            MediaType::Anime => write!(f, "anime"),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum)]

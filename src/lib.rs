@@ -6,4 +6,4 @@ mod scraper;
 
 pub use app::App;
 pub use error::Error;
-pub use scraper::{Config, FileType};
+pub use scraper::{Config, FileType, MediaType};
