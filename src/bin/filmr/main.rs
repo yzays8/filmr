@@ -3,12 +3,12 @@
 mod cli;
 
 use clap::Parser as _;
-use cli::{Args, FileType};
 
+use cli::{Args, FileType};
 use filmr::{self, App, Config};
 
 #[tokio::main]
-async fn main() {
+async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
     let format = match args.format {
         FileType::Csv => filmr::FileType::Csv,
@@ -25,8 +25,7 @@ async fn main() {
         rate: args.rate,
     };
 
-    if let Err(e) = App::new(config).run().await {
-        eprintln!("Error: {}", e);
-        std::process::exit(1);
-    }
+    App::new(config).run().await?;
+
+    Ok(())
 }

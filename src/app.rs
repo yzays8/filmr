@@ -1,9 +1,8 @@
 use std::path::Path;
 
-use anyhow::Result;
-
 use crate::{
     client::RateLimitedClient,
+    error::Result,
     scraper::{Config, FileType, Scraper},
 };
 

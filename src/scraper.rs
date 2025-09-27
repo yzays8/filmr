@@ -1,6 +1,5 @@
 use std::{fs::File, io::Write, path::Path, sync::Arc};
 
-use anyhow::{Ok, Result, anyhow, bail};
 use colored::Colorize;
 use futures::future::join_all;
 use humantime::Duration;
@@ -10,7 +9,10 @@ use reqwest::StatusCode;
 use scraper::{ElementRef, Html, Selector};
 use serde::{Deserialize, Serialize};
 
-use crate::client::RateLimitedClient;
+use crate::{
+    client::RateLimitedClient,
+    error::{Error, Result},
+};
 
 #[derive(Debug)]
 pub struct Config {
@@ -95,7 +97,7 @@ impl Scraper {
             let res = self.client.get(&proc_url).await?;
             if res.status() == StatusCode::NOT_FOUND {
                 if is_first_page {
-                    bail!("User not found");
+                    return Err(Error::UserNotFound);
                 } else {
                     // No more pages
                     break;
@@ -106,8 +108,7 @@ impl Scraper {
             println!("Fetching reviews from {}...", proc_url.bright_cyan());
 
             let html = Html::parse_document(&res.text().await?);
-            let s = Selector::parse("div.p-contents-list div.c-content-card")
-                .map_err(|e| anyhow!("Failed to parse selector {}", e))?;
+            let s = Selector::parse("div.p-contents-list div.c-content-card")?;
             let review_elems = html.select(&s);
             let review_count = review_elems.clone().count();
             let pb = Arc::new(ProgressBar::new(review_count as u64));
@@ -122,10 +123,7 @@ impl Scraper {
             let mut long_tasks = Vec::new();
             for (i, review_elem) in review_elems.enumerate() {
                 let is_short_review = review_elem
-                    .select(
-                        &Selector::parse("span.c-content-card__readmore-review")
-                            .map_err(|e| anyhow!("Failed to parse selector {}", e))?,
-                    )
+                    .select(&Selector::parse("span.c-content-card__readmore-review")?)
                     .next()
                     .is_none();
 
@@ -134,10 +132,7 @@ impl Scraper {
                     pb.inc(1);
                 } else {
                     let uri = review_elem
-                        .select(
-                            &Selector::parse("span.c-content-card__readmore-review a")
-                                .map_err(|e| anyhow!("Failed to parse selector {}", e))?,
-                        )
+                        .select(&Selector::parse("span.c-content-card__readmore-review a")?)
                         .next()
                         .unwrap()
                         .value()
@@ -161,7 +156,7 @@ impl Scraper {
                 }
             }
 
-            let long_results = join_all(long_tasks).await;
+            let long_results: Vec<Result<(usize, UserReview)>> = join_all(long_tasks).await;
             for res in long_results {
                 let (i, review) = res?;
                 review_slots[i] = Some(review);
@@ -190,10 +185,7 @@ impl Scraper {
             Regex::new(r#"<p class="c-content-card__review"><span>(.*)</span></p>"#)?;
 
         let title_and_year = elem
-            .select(
-                &Selector::parse("h3.c-content-card__title")
-                    .map_err(|e| anyhow!("Failed to parse selector {}", e))?,
-            )
+            .select(&Selector::parse("h3.c-content-card__title")?)
             .next()
             .unwrap()
             .text()
@@ -202,10 +194,7 @@ impl Scraper {
         let title = captures.get(1).unwrap().as_str().to_string();
         let year = captures.get(2).unwrap().as_str().parse::<i32>().unwrap();
         let score = elem
-            .select(
-                &Selector::parse("div.c-rating__score")
-                    .map_err(|e| anyhow!("Failed to parse selector {}", e))?,
-            )
+            .select(&Selector::parse("div.c-rating__score")?)
             .next()
             .unwrap()
             .text()
@@ -215,10 +204,7 @@ impl Scraper {
         let review = regex_short_rev
             .captures(
                 &elem
-                    .select(
-                        &Selector::parse("p.c-content-card__review")
-                            .map_err(|e| anyhow!("Failed to parse selector {}", e))?,
-                    )
+                    .select(&Selector::parse("p.c-content-card__review")?)
                     .next()
                     .unwrap()
                     .html(),
@@ -242,10 +228,7 @@ impl Scraper {
         let regex_long_rev = Regex::new(r#"<div class="p-mark-review">(.+)</div>"#)?;
 
         let title_and_year = html
-            .select(
-                &Selector::parse("div.p-timeline-mark__title")
-                    .map_err(|e| anyhow!("Failed to parse selector {}", e))?,
-            )
+            .select(&Selector::parse("div.p-timeline-mark__title")?)
             .next()
             .unwrap()
             .text()
@@ -254,10 +237,7 @@ impl Scraper {
         let title = captures.get(1).unwrap().as_str().to_string();
         let year = captures.get(2).unwrap().as_str().parse::<i32>().unwrap();
         let score = html
-            .select(
-                &Selector::parse("div.c-rating__score")
-                    .map_err(|e| anyhow!("Failed to parse selector {}", e))?,
-            )
+            .select(&Selector::parse("div.c-rating__score")?)
             .next()
             .unwrap()
             .text()
@@ -267,10 +247,7 @@ impl Scraper {
         let review = regex_long_rev
             .captures(
                 &html
-                    .select(
-                        &Selector::parse("div.p-mark-review")
-                            .map_err(|e| anyhow!("Failed to parse selector {}", e))?,
-                    )
+                    .select(&Selector::parse("div.p-mark-review")?)
                     .next()
                     .unwrap()
                     .html(),
