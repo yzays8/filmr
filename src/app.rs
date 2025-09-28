@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{fs::OpenOptions, path::Path};
 
 use crate::{
     client::RateLimitedClient,
@@ -45,7 +45,12 @@ impl App {
                 FileType::Txt => Path::new("reviews.txt"),
             },
         };
-        file_path.try_exists()?;
+
+        // Check if the file can be created.
+        OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(file_path)?;
 
         self.get_scraper()
             .scrape()
