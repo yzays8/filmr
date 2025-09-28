@@ -1,4 +1,7 @@
-use std::{fs::OpenOptions, path::Path};
+use std::{
+    fs::{self, OpenOptions},
+    path::Path,
+};
 
 use crate::{
     client::RateLimitedClient,
@@ -51,6 +54,7 @@ impl App {
             .write(true)
             .create_new(true)
             .open(file_path)?;
+        fs::remove_file(file_path)?;
 
         self.get_scraper()
             .scrape()
