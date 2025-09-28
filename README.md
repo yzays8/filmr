@@ -23,5 +23,5 @@ Options:
 ### Example
 
 ```sh
-cargo run <USER_ID> --anime -o anime_reviews.csv
+cargo run <USER_ID> -m anime -o anime_reviews.csv
 ```
