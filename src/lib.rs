@@ -1,4 +1,5 @@
-#[deny(unsafe_code)]
+#![deny(unsafe_code)]
+
 mod app;
 mod client;
 mod error;
