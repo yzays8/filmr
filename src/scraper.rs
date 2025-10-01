@@ -100,15 +100,24 @@ impl Scraper {
 
         loop {
             let res = self.client.get(&proc_url).await?;
-            if res.status() == StatusCode::NOT_FOUND {
-                if is_first_page {
-                    return Err(Error::UserNotFound);
-                } else {
-                    // No more pages
-                    break;
+            match res.status() {
+                StatusCode::NOT_FOUND => {
+                    if is_first_page {
+                        return Err(Error::UserNotFound);
+                    } else {
+                        // No more pages
+                        break;
+                    }
                 }
-            } else {
-                is_first_page = false;
+                StatusCode::OK => {
+                    is_first_page = false;
+                }
+                _ => {
+                    return Err(Error::Other(format!(
+                        "Failed to fetch page: {}",
+                        res.status()
+                    )));
+                }
             }
             println!("Fetching reviews from {}...", proc_url.bright_cyan());
 

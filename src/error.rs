@@ -18,6 +18,8 @@ pub enum Error {
     Reqwest(#[from] reqwest::Error),
     #[error("user not found")]
     UserNotFound,
+    #[error("{0}")]
+    Other(String),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
