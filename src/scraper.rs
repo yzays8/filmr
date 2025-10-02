@@ -61,7 +61,7 @@ impl UserReviews {
                 writer.flush()?;
             }
             FileType::Json => {
-                let json = serde_json::to_string_pretty(&self)?;
+                let json = serde_json::to_string_pretty(&self.reviews)?;
                 File::create(path)?.write_all(json.as_bytes())?;
             }
             FileType::Txt => {
